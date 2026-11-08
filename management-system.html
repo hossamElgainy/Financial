@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الإدارة المالية والموظفين والشركاء</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Google Fonts - Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col" x-data="appData()">
+
+    <!-- Header / Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-30 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
+                    <i class="fa-solid fa-chart-pie text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900 leading-tight">الإدارة المالية والتشغيلية</h1>
+                    <p class="text-xs text-gray-500">لوحة التحكم المتكاملة للمؤسسة</p>
+                </div>
+            </div>
+
+            <!-- Main Navigation Tabs -->
+            <nav class="hidden md:flex space-x-1 space-x-reverse bg-gray-100 p-1 rounded-xl">
+                <button @click="currentTab = 'finance'; activeSubView = 'main'"
+                        :class="currentTab === 'finance' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i> الإدارة المالية والتقارير
+                </button>
+                <button @click="currentTab = 'employees'"
+                        :class="currentTab === 'employees' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear"></i> الموظفين والصلاحيات
+                </button>
+                <button @click="currentTab = 'partners'"
+                        :class="currentTab === 'partners' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-handshake"></i> الشركاء والمساهمون
+                </button>
+            </nav>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden flex items-center">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div x-show="mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200 px-4 pt-2 pb-4 space-y-1">
+            <button @click="currentTab = 'finance'; activeSubView = 'main'; mobileMenuOpen = false"
+                    :class="currentTab === 'finance' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600'"
+                    class="w-full text-right px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-chart-line"></i> الإدارة المالية والتقارير
+            </button>
+            <button @click="currentTab = 'employees'; mobileMenuOpen = false"
+                    :class="currentTab === 'employees' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600'"
+                    class="w-full text-right px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-users-gear"></i> الموظفين والصلاحيات
+            </button>
+            <button @click="currentTab = 'partners'; mobileMenuOpen = false"
+                    :class="currentTab === 'partners' ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600'"
+                    class="w-full text-right px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-handshake"></i> الشركاء والمساهمون
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ==================== TAB 1: FINANCE & REPORTS ==================== -->
+        <div x-show="currentTab === 'finance'">
+
+            <!-- Sub-view: Main Finance Dashboard -->
+            <div x-show="activeSubView === 'main'">
+
+                <!-- Filter & Header Actions Bar -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                            <i class="fa-solid fa-wallet text-indigo-600"></i> لوحة المؤشرات المالية
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-0.5">متابعة الإيرادات، المصروفات، الأرباح، وحسابات الشركاء والموظفين.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Period Filter Dropdown -->
+                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-xl px-3 py-2">
+                            <i class="fa-solid fa-filter text-gray-400 text-sm"></i>
+                            <span class="text-xs font-medium text-gray-600">الفترة:</span>
+                            <select x-model="selectedPeriod" class="bg-transparent text-sm font-semibold text-gray-800 focus:outline-none cursor-pointer">
+                                <option value="all">الكل</option>
+                                <option value="this_month">هذا الشهر</option>
+                                <option value="last_6_months">آخر 6 شهور</option>
+                                <option value="this_year">السنة الحالية</option>
+                                <option value="last_year">السنة الماضية</option>
+                            </select>
+                        </div>
+
+                        <!-- Quick Actions Dropdown / Modal Triggers -->
+                        <div class="relative" x-data="{ openQA: false }">
+                            <button @click="openQA = !openQA" @click.away="openQA = false" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-bolt text-amber-300"></i> إجراءات سريعة <i class="fa-solid fa-chevron-down text-xs mr-1"></i>
+                            </button>
+                            <div x-show="openQA" class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-20" style="display: none;">
+                                <button @click="openModal('expense'); openQA = false" class="w-full text-right px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2.5">
+                                    <i class="fa-solid fa-file-invoice-dollar text-red-500 w-5"></i> إضافة مصروف جديد
+                                </button>
+                                <button @click="openModal('advance'); openQA = false" class="w-full text-right px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2.5">
+                                    <i class="fa-solid fa-hand-holding-dollar text-amber-500 w-5"></i> تسجيل سلفة لموظف
+                                </button>
+                                <button @click="openModal('partner'); openQA = false" class="w-full text-right px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2.5">
+                                    <i class="fa-solid fa-user-plus text-emerald-500 w-5"></i> إضافة شريك أو مساهم
+                                </button>
+                                <button @click="openModal('withdraw'); openQA = false" class="w-full text-right px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2.5">
+                                    <i class="fa-solid fa-money-bill-transfer text-blue-500 w-5"></i> تسجيل سحب أرباح شريك
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
+
+                    <!-- 1. Total Revenues -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">إجمالي الإيرادات</span>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-black text-gray-900" x-text="formatCurrency(totalRevenues)">0 ج.م</div>
+                            <div class="text-xs text-emerald-600 font-medium mt-1 flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> مسجلة تلقائياً
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. General Expenses -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">المصروفات العامة</span>
+                            <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-black text-gray-900" x-text="formatCurrency(totalExpenses)">0 ج.م</div>
+                            <div class="text-xs text-gray-500 mt-1">تشغيل، إيجار، خدمات</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Fixed Salaries -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">الرواتب الثابتة</span>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-black text-gray-900" x-text="formatCurrency(totalSalaries)">0 ج.م</div>
+                            <div class="text-xs text-gray-500 mt-1">إجمالي رواتب الموظفين</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Monthly Advances Deductions -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">أقساط السلف الشهرية</span>
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-black text-gray-900" x-text="formatCurrency(totalAdvances)">0 ج.م</div>
+                            <div class="text-xs text-gray-500 mt-1">مسحوبات وسلف معلقة</div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Net Profit before Partner Shares -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1 bg-gradient-to-br from-indigo-900 to-indigo-800 text-white">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-indigo-200 uppercase tracking-wider">صافي الربح المتاح</span>
+                            <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-coins"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-black text-white" x-text="formatCurrency(netProfit)">0 ج.م</div>
+                            <div class="text-xs text-indigo-200 mt-1">قبل توزيعات الشركاء</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Recent Transactions Grids (Revenues & Expenses - Last 5 with View All) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                    <!-- Recent Revenues -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-trend-up text-emerald-600"></i> سجل الإيرادات (آخر 5 عمليات)
+                            </h3>
+                            <button @click="activeSubView = 'all_revenues'" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">
+                                عرض الكل (<span x-text="filteredRevenues.length"></span>)
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400">
+                                        <th class="pb-3">البيان / الوصف</th>
+                                        <th class="pb-3">التاريخ</th>
+                                        <th class="pb-3 text-left">المبلغ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 text-sm">
+                                    <template x-for="item in filteredRevenues.slice(0, 5)" :key="item.id">
+                                        <tr>
+                                            <td class="py-3 font-medium text-gray-800" x-text="item.description"></td>
+                                            <td class="py-3 text-gray-500 text-xs" x-text="item.date"></td>
+                                            <td class="py-3 text-left font-bold text-emerald-600" x-text="formatCurrency(item.amount)"></td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredRevenues.length === 0">
+                                        <tr>
+                                            <td colspan="3" class="py-8 text-center text-gray-400 text-sm">لا توجد إيرادات مسجلة بالفترة الحالية</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Recent Expenses -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fa-solid fa-file-invoice-dollar text-red-600"></i> سجل المصروفات (آخر 5 عمليات)
+                            </h3>
+                            <button @click="activeSubView = 'all_expenses'" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors">
+                                عرض الكل (<span x-text="filteredExpenses.length"></span>)
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead>
+                                    <tr class="border-b border-gray-100 text-xs font-semibold text-gray-400">
+                                        <th class="pb-3">بيان المصروف</th>
+                                        <th class="pb-3">التاريخ</th>
+                                        <th class="pb-3 text-left">المبلغ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-50 text-sm">
+                                    <template x-for="item in filteredExpenses.slice(0, 5)" :key="item.id">
+                                        <tr>
+                                            <td class="py-3 font-medium text-gray-800" x-text="item.description"></td>
+                                            <td class="py-3 text-gray-500 text-xs" x-text="item.date"></td>
+                                            <td class="py-3 text-left font-bold text-red-600" x-text="formatCurrency(item.amount)"></td>
+                                        </tr>
+                                    </template>
+                                    <template x-if="filteredExpenses.length === 0">
+                                        <tr>
+                                            <td colspan="3" class="py-8 text-center text-gray-400 text-sm">لا توجد مصروفات مسجلة بالفترة الحالية</td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Sub-view: All Revenues Full Page -->
+            <div x-show="activeSubView === 'all_revenues'" style="display: none;">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <button @click="activeSubView = 'main'" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">سجل الإيرادات بالكامل</h2>
+                            <p class="text-sm text-gray-500">عرض جميع العمليات الإيرادية المسجلة في النظام</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-64">
+                            <i class="fa-solid fa-search absolute right-3.5 top-3 text-gray-400 text-sm"></i>
+                            <input type="text" x-model="revenueSearch" placeholder="بحث في الإيرادات..." class="w-full bg-gray-50 border border-gray-300 rounded-xl pr-10 pl-4 py-2 text-sm focus:outline-none focus:border-indigo-600">
+                        </div>
+                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-xl px-3 py-2">
+                            <span class="text-xs font-medium text-gray-600">الفترة:</span>
+                            <select x-model="selectedPeriod" class="bg-transparent text-sm font-semibold text-gray-800 focus:outline-none cursor-pointer">
+                                <option value="all">الكل</option>
+                                <option value="this_month">هذا الشهر</option>
+                                <option value="last_6_months">آخر 6 شهور</option>
+                                <option value="this_year">السنة الحالية</option>
+                                <option value="last_year">السنة الماضية</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase">
+                                    <th class="p-4">#</th>
+                                    <th class="p-4">بيان الإيراد</th>
+                                    <th class="p-4">التاريخ والوقت</th>
+                                    <th class="p-4 text-left">المبلغ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                <template x-for="(item, index) in searchedRevenues" :key="item.id">
+                                    <tr class="hover:bg-gray-50/50">
+                                        <td class="p-4 text-gray-400 font-mono text-xs" x-text="index + 1"></td>
+                                        <td class="p-4 font-semibold text-gray-800" x-text="item.description"></td>
+                                        <td class="p-4 text-gray-500 text-xs" x-text="item.date"></td>
+                                        <td class="p-4 text-left font-bold text-emerald-600" x-text="formatCurrency(item.amount)"></td>
+                                    </tr>
+                                </template>
+                                <template x-if="searchedRevenues.length === 0">
+                                    <tr>
+                                        <td colspan="4" class="p-12 text-center text-gray-400">لا توجد نتائج مطابقة للبحث</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-view: All Expenses Full Page -->
+            <div x-show="activeSubView === 'all_expenses'" style="display: none;">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <button @click="activeSubView = 'main'" class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">سجل المصروفات بالكامل</h2>
+                            <p class="text-sm text-gray-500">عرض جميع المصروفات التشغيلية والعامة المسجلة</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-64">
+                            <i class="fa-solid fa-search absolute right-3.5 top-3 text-gray-400 text-sm"></i>
+                            <input type="text" x-model="expenseSearch" placeholder="بحث في المصروفات..." class="w-full bg-gray-50 border border-gray-300 rounded-xl pr-10 pl-4 py-2 text-sm focus:outline-none focus:border-indigo-600">
+                        </div>
+                        <div class="flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-xl px-3 py-2">
+                            <span class="text-xs font-medium text-gray-600">الفترة:</span>
+                            <select x-model="selectedPeriod" class="bg-transparent text-sm font-semibold text-gray-800 focus:outline-none cursor-pointer">
+                                <option value="all">الكل</option>
+                                <option value="this_month">هذا الشهر</option>
+                                <option value="last_6_months">آخر 6 شهور</option>
+                                <option value="this_year">السنة الحالية</option>
+                                <option value="last_year">السنة الماضية</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase">
+                                    <th class="p-4">#</th>
+                                    <th class="p-4">بيان المصروف</th>
+                                    <th class="p-4">التاريخ والوقت</th>
+                                    <th class="p-4 text-left">المبلغ</th>
+                                    <th class="p-4 text-center">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                <template x-for="(item, index) in searchedExpenses" :key="item.id">
+                                    <tr class="hover:bg-gray-50/50">
+                                        <td class="p-4 text-gray-400 font-mono text-xs" x-text="index + 1"></td>
+                                        <td class="p-4 font-semibold text-gray-800" x-text="item.description"></td>
+                                        <td class="p-4 text-gray-500 text-xs" x-text="item.date"></td>
+                                        <td class="p-4 text-left font-bold text-red-600" x-text="formatCurrency(item.amount)"></td>
+                                        <td class="p-4 text-center">
+                                            <button @click="openEditExpense(item)" class="text-indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50 transition-colors" title="تعديل">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                            <button @click="deleteExpense(item.id)" class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="حذف">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-if="searchedExpenses.length === 0">
+                                    <tr>
+                                        <td colspan="5" class="p-12 text-center text-gray-400">لا توجد نتائج مطابقة للبحث</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== TAB 2: EMPLOYEES & USERS ==================== -->
+        <div x-show="currentTab === 'employees'" style="display: none;">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-indigo-600"></i> إدارة الموظفين والمستخدمين والصلاحيات
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">قائمة الموظفين، الرواتب الثابتة، الصلاحيات، وإدارة السلف.</p>
+                </div>
+                <button @click="openModal('employee')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> إضافة موظف جديد
+                </button>
+            </div>
+
+            <!-- Employees Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase">
+                                <th class="p-4">اسم الموظف</th>
+                                <th class="p-4">البريد الإلكتروني</th>
+                                <th class="p-4">التليفون</th>
+                                <th class="p-4">الوظيفة / الدور</th>
+                                <th class="p-4">الراتب الثابت</th>
+                                <th class="p-4">السلف المعلقة</th>
+                                <th class="p-4">الصلاحيات</th>
+                                <th class="p-4 text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm">
+                            <template x-for="emp in employees" :key="emp.id">
+                                <tr class="hover:bg-gray-50/50">
+                                    <td class="p-4 font-bold text-gray-900" x-text="emp.name"></td>
+                                    <td class="p-4 text-gray-600 text-xs" dir="ltr" x-text="emp.email || '-'"></td>
+                                    <td class="p-4 text-gray-600 text-xs" dir="ltr" x-text="emp.phone || '-'"></td>
+                                    <td class="p-4 text-gray-600" x-text="emp.role"></td>
+                                    <td class="p-4 font-semibold text-blue-600" x-text="formatCurrency(emp.salary)"></td>
+                                    <td class="p-4 font-semibold text-amber-600" x-text="formatCurrency(emp.advance)"></td>
+                                    <td class="p-4">
+                                        <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700" x-text="emp.permission"></span>
+                                    </td>
+                                    <td class="p-4 text-center flex items-center justify-center gap-2">
+                                        <button @click="openAdvanceModalFor(emp)" class="text-amber-600 hover:text-amber-800 p-1.5 rounded-lg hover:bg-amber-50 transition-colors" title="تسجيل سلفة">
+                                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                                        </button>
+                                        <button @click="deleteEmployee(emp.id)" class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="حذف موظف">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="employees.length === 0">
+                                <tr>
+                                    <td colspan="8" class="p-12 text-center text-gray-400">لا يوجد موظفون مسجلون حالياً</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: PARTNERS ==================== -->
+        <div x-show="currentTab === 'partners'" style="display: none;">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-handshake text-indigo-600"></i> إدارة الشركاء والمساهمين
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">حساب الأرباح تلقائياً بناءً على نسبة الملكية، ومتابعة السحوبات والأرصدة المتبقية.</p>
+                </div>
+                <button @click="openModal('partner')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> إضافة شريك جديد
+                </button>
+            </div>
+
+            <!-- Partners Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase">
+                                <th class="p-4">اسم الشريك</th>
+                                <th class="p-4">الهاتف</th>
+                                <th class="p-4">نسبة الملكية</th>
+                                <th class="p-4">صافي الربح المتاح</th>
+                                <th class="p-4">إجمالي المستحقات</th>
+                                <th class="p-4">السحوبات</th>
+                                <th class="p-4">الرصيد المتبقي</th>
+                                <th class="p-4 text-center">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm">
+                            <template x-for="p in calculatedPartners" :key="p.id">
+                                <tr class="hover:bg-gray-50/50">
+                                    <td class="p-4 font-bold text-gray-900" x-text="p.name"></td>
+                                    <td class="p-4 text-gray-600" x-text="p.phone"></td>
+                                    <td class="p-4 font-semibold text-indigo-600" x-text="p.share + '%'"></td>
+                                    <td class="p-4 font-semibold text-emerald-600" x-text="formatCurrency(p.availableProfit)"></td>
+                                    <td class="p-4 font-semibold text-gray-800" x-text="formatCurrency(p.totalDues)"></td>
+                                    <td class="p-4 font-semibold text-red-600" x-text="formatCurrency(p.withdrawals)"></td>
+                                    <td class="p-4 font-black" :class="p.remainingBalance >= 0 ? 'text-indigo-900' : 'text-red-600'" x-text="formatCurrency(p.remainingBalance)"></td>
+                                    <td class="p-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button @click="openWithdrawFor(p)" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5" title="سحب أرباح">
+                                                <i class="fa-solid fa-money-bill-transfer"></i> سحب
+                                            </button>
+                                            <button @click="deletePartner(p.id)" class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="حذف شريك">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template x-if="partners.length === 0">
+                                <tr>
+                                    <td colspan="8" class="p-12 text-center text-gray-400">لا توجد شركاء مسجلون حالياً</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Modal: Add / Edit Expense -->
+    <div x-show="modalType === 'expense'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;">
+        <div @click.away="closeModal()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-red-600"></i>
+                    <span x-text="editingExpenseId ? 'تعديل المصروف' : 'إضافة مصروف جديد'"></span>
+                </h3>
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="saveExpense">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">بيان المصروف</label>
+                        <input type="text" x-model="expenseForm.description" required placeholder="مثال: إيجار المقر، فاتورة كهرباء..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">المبلغ (ج.م)</label>
+                        <input type="number" step="0.01" x-model="expenseForm.amount" required placeholder="0.00" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100">إلغاء</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+                            x-text="editingExpenseId ? 'حفظ التعديلات' : 'حفظ المصروف'"></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Advance for Employee -->
+    <div x-show="modalType === 'advance'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;">
+        <div @click.away="closeModal()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-dollar text-amber-600"></i> تسجيل سلفة لموظف
+                </h3>
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="saveAdvance">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">اختر الموظف</label>
+                        <select x-model="advanceForm.employeeId" required class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                            <option value="">-- اختر الموظف --</option>
+                            <template x-for="emp in employees" :key="emp.id">
+                                <option :value="emp.id" x-text="emp.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">مبلغ السلفة (ج.م)</label>
+                        <input type="number" step="0.01" x-model="advanceForm.amount" required placeholder="0.00" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100">إلغاء</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">حفظ السلفة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Partner -->
+    <div x-show="modalType === 'partner'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;">
+        <div @click.away="closeModal()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-emerald-600"></i> إضافة شريك أو مساهم جديد
+                </h3>
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="savePartner">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">اسم الشريك</label>
+                        <input type="text" x-model="partnerForm.name" required placeholder="الاسم الكامل" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label>
+                        <input type="text" x-model="partnerForm.phone" required placeholder="010xxxxxxxx" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">نسبة الملكية (%)</label>
+                        <input type="number" step="0.1" x-model="partnerForm.share" required placeholder="مثال: 25" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100">إلغاء</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">حفظ الشريك</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Withdraw Partner Profits -->
+    <div x-show="modalType === 'withdraw'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;">
+        <div @click.away="closeModal()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-transfer text-blue-600"></i> تسجيل سحب أرباح شريك
+                </h3>
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="saveWithdrawal">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">اختر الشريك</label>
+                        <select x-model="withdrawForm.partnerId" required class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                            <option value="">-- اختر الشريك --</option>
+                            <template x-for="p in partners" :key="p.id">
+                                <option :value="p.id" x-text="p.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">مبلغ السحب (ج.م)</label>
+                        <input type="number" step="0.01" x-model="withdrawForm.amount" required placeholder="0.00" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                        <p x-show="selectedWithdrawPartner" class="text-xs text-gray-500 mt-1.5">
+                            الرصيد المتبقي: <span class="font-bold text-indigo-700" x-text="selectedWithdrawPartner ? formatCurrency(selectedWithdrawPartner.remainingBalance) : ''"></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100">إلغاء</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">تأكيد السحب</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Employee -->
+    <div x-show="modalType === 'employee'" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" style="display: none;">
+        <div @click.away="closeModal()" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-indigo-600"></i> إضافة موظف جديد
+                </h3>
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form @submit.prevent="saveEmployee">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">الاسم</label>
+                        <input type="text" x-model="employeeForm.name" required placeholder="الاسم الكامل" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">البريد الإلكتروني</label>
+                        <input type="email" dir="ltr" x-model="employeeForm.email" required placeholder="name@example.com" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-right focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">رقم التليفون</label>
+                        <input type="tel" dir="ltr" x-model="employeeForm.phone" required placeholder="010xxxxxxxx" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-right focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">الدور / الصلاحية</label>
+                        <select x-model="employeeForm.permission" required class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                            <option value="مدير عام">مدير عام</option>
+                            <option value="محاسب">محاسب</option>
+                            <option value="مداوم / مشرف">مداوم / مشرف</option>
+                            <option value="موظف عادي">موظف عادي</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">المسمى الوظيفي</label>
+                        <input type="text" x-model="employeeForm.role" required placeholder="مثال: محاسب، مدير تشغيل..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">كلمة المرور</label>
+                        <input type="password" x-model="employeeForm.password" required minlength="6" placeholder="6 أحرف على الأقل" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">تأكيد كلمة المرور</label>
+                        <input type="password" x-model="employeeForm.confirmPassword" required placeholder="أعد كتابة كلمة المرور" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                        <p x-show="passwordError" x-text="passwordError" class="text-xs text-red-600 mt-1 font-semibold"></p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">الراتب الثابت (ج.م)</label>
+                        <input type="number" step="0.01" x-model="employeeForm.salary" required placeholder="0.00" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+                <div class="mt-6 flex items-center justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100">إلغاء</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">حفظ الموظف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alpine.js Application Logic -->
+    <script>
+        function appData() {
+            return {
+                currentTab: 'finance',
+                activeSubView: 'main',
+                mobileMenuOpen: false,
+                modalType: null,
+                selectedPeriod: 'all',
+                revenueSearch: '',
+                expenseSearch: '',
+                editingExpenseId: null,
+                passwordError: '',
+
+                // Data Store (Synced with localStorage)
+                revenues: JSON.parse(localStorage.getItem('sys_revenues')) || [
+                    { id: 1, description: 'حجز فستان زفاف - عروسة رقم 101', amount: 8500, date: '2026-06-10 14:30' },
+                    { id: 2, description: 'إيجار إكسسوارات حفل', amount: 1500, date: '2026-06-12 11:00' },
+                    { id: 3, description: 'حجز فستان سهرة', amount: 3500, date: '2026-06-15 16:45' },
+                    { id: 4, description: 'خدمات إضافية وتعديلات', amount: 1200, date: '2026-06-18 10:15' },
+                    { id: 5, description: 'مبيعات إكسسوارات', amount: 2000, date: '2026-06-20 18:20' }
+                ],
+                expenses: JSON.parse(localStorage.getItem('sys_expenses')) || [
+                    { id: 1, description: 'إيجار المعرض الشهري', amount: 12000, date: '2026-06-01 09:00' },
+                    { id: 2, description: 'فواتير الكهرباء والمياه', amount: 1800, date: '2026-06-05 12:00' },
+                    { id: 3, description: 'مصاريف صيانة وتشغيل', amount: 2500, date: '2026-06-10 14:00' }
+                ],
+                employees: JSON.parse(localStorage.getItem('sys_employees')) || [
+                    { id: 1, name: 'أحمد محمود', email: '', phone: '', role: 'مدير التشغيل', salary: 7000, advance: 1000, permission: 'مدير عام' },
+                    { id: 2, name: 'سارة إبراهيم', email: '', phone: '', role: 'محاسبة', salary: 5000, advance: 500, permission: 'محاسب' },
+                    { id: 3, name: 'محمد علي', email: '', phone: '', role: 'مسؤول مبيعات', salary: 4500, advance: 0, permission: 'موظف عادي' }
+                ],
+                partners: JSON.parse(localStorage.getItem('sys_partners')) || [
+                    { id: 1, name: 'محمود الشريف', phone: '01012345678', share: 50, withdrawals: 5000 },
+                    { id: 2, name: 'خالد عبد الله', phone: '01098765432', share: 50, withdrawals: 3000 }
+                ],
+
+                // Form States
+                expenseForm: { description: '', amount: '' },
+                advanceForm: { employeeId: '', amount: '' },
+                partnerForm: { name: '', phone: '', share: '' },
+                withdrawForm: { partnerId: '', amount: '' },
+                employeeForm: { name: '', email: '', phone: '', role: '', salary: '', password: '', confirmPassword: '', permission: 'موظف عادي' },
+
+                init() {
+                    this.$watch('revenues', val => localStorage.setItem('sys_revenues', JSON.stringify(val)));
+                    this.$watch('expenses', val => localStorage.setItem('sys_expenses', JSON.stringify(val)));
+                    this.$watch('employees', val => localStorage.setItem('sys_employees', JSON.stringify(val)));
+                    this.$watch('partners', val => localStorage.setItem('sys_partners', JSON.stringify(val)));
+                },
+
+                formatCurrency(num) {
+                    return Number(num || 0).toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';
+                },
+
+                openModal(type) {
+                    this.modalType = type;
+                    this.editingExpenseId = null;
+                    this.passwordError = '';
+                    this.expenseForm = { description: '', amount: '' };
+                    this.advanceForm = { employeeId: '', amount: '' };
+                    this.partnerForm = { name: '', phone: '', share: '' };
+                    this.withdrawForm = { partnerId: '', amount: '' };
+                    this.employeeForm = { name: '', email: '', phone: '', role: '', salary: '', password: '', confirmPassword: '', permission: 'موظف عادي' };
+                },
+
+                openAdvanceModalFor(emp) {
+                    this.modalType = 'advance';
+                    this.advanceForm.employeeId = emp.id;
+                    this.advanceForm.amount = '';
+                },
+
+                openWithdrawFor(p) {
+                    this.withdrawForm = { partnerId: p.id, amount: '' };
+                    this.modalType = 'withdraw';
+                },
+
+                openEditExpense(item) {
+                    this.editingExpenseId = item.id;
+                    this.expenseForm = { description: item.description, amount: item.amount };
+                    this.modalType = 'expense';
+                },
+
+                closeModal() {
+                    this.modalType = null;
+                    this.editingExpenseId = null;
+                },
+
+                saveExpense() {
+                    if (!this.expenseForm.description || !this.expenseForm.amount) return;
+                    const amount = parseFloat(this.expenseForm.amount);
+                    if (this.editingExpenseId) {
+                        const exp = this.expenses.find(e => e.id === this.editingExpenseId);
+                        if (exp) {
+                            exp.description = this.expenseForm.description;
+                            exp.amount = amount;
+                        }
+                    } else {
+                        const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+                        this.expenses.unshift({
+                            id: Date.now(),
+                            description: this.expenseForm.description,
+                            amount: amount,
+                            date: now
+                        });
+                    }
+                    this.closeModal();
+                },
+
+                deleteExpense(id) {
+                    if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+                        this.expenses = this.expenses.filter(e => e.id !== id);
+                    }
+                },
+
+                saveAdvance() {
+                    if (!this.advanceForm.employeeId || !this.advanceForm.amount) return;
+                    const empId = parseInt(this.advanceForm.employeeId);
+                    const amount = parseFloat(this.advanceForm.amount);
+                    const emp = this.employees.find(e => e.id === empId);
+                    if (emp) {
+                        emp.advance = (emp.advance || 0) + amount;
+                        this.expenses.unshift({
+                            id: Date.now(),
+                            description: `سلفة موظف: ${emp.name}`,
+                            amount: amount,
+                            date: new Date().toISOString().replace('T', ' ').substring(0, 16)
+                        });
+                    }
+                    this.closeModal();
+                },
+
+                savePartner() {
+                    if (!this.partnerForm.name || !this.partnerForm.phone || !this.partnerForm.share) return;
+                    this.partners.push({
+                        id: Date.now(),
+                        name: this.partnerForm.name,
+                        phone: this.partnerForm.phone,
+                        share: parseFloat(this.partnerForm.share),
+                        withdrawals: 0
+                    });
+                    this.closeModal();
+                },
+
+                deletePartner(id) {
+                    if (confirm('هل أنت متأكد من حذف هذا الشريك؟')) {
+                        this.partners = this.partners.filter(p => p.id !== id);
+                    }
+                },
+
+                saveWithdrawal() {
+                    if (!this.withdrawForm.partnerId || !this.withdrawForm.amount) return;
+                    const pId = parseInt(this.withdrawForm.partnerId);
+                    const amount = parseFloat(this.withdrawForm.amount);
+                    const partner = this.partners.find(p => p.id === pId);
+                    const calc = this.calculatedPartners.find(p => p.id === pId);
+                    if (!partner) return;
+
+                    if (calc && amount > calc.remainingBalance) {
+                        if (!confirm('مبلغ السحب أكبر من الرصيد المتبقي للشريك (' + this.formatCurrency(calc.remainingBalance) + '). هل تريد المتابعة؟')) return;
+                    }
+                    partner.withdrawals = (partner.withdrawals || 0) + amount;
+                    this.closeModal();
+                },
+
+                async hashPassword(password) {
+                    try {
+                        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+                        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    } catch (e) {
+                        // crypto.subtle غير متاح خارج HTTPS / localhost
+                        return btoa(unescape(encodeURIComponent(password)));
+                    }
+                },
+
+                async saveEmployee() {
+                    const f = this.employeeForm;
+                    if (!f.name || !f.email || !f.phone || !f.role || !f.salary || !f.password) return;
+
+                    if (f.password.length < 6) { this.passwordError = 'كلمة المرور لازم تكون 6 أحرف على الأقل'; return; }
+                    if (f.password !== f.confirmPassword) { this.passwordError = 'كلمتا المرور غير متطابقتين'; return; }
+                    if (this.employees.some(e => (e.email || '').toLowerCase() === f.email.toLowerCase())) {
+                        this.passwordError = 'هذا البريد الإلكتروني مسجل بالفعل'; return;
+                    }
+
+                    this.employees.push({
+                        id: Date.now(),
+                        name: f.name,
+                        email: f.email,
+                        phone: f.phone,
+                        role: f.role,
+                        salary: parseFloat(f.salary),
+                        advance: 0,
+                        permission: f.permission,
+                        passwordHash: await this.hashPassword(f.password)
+                    });
+                    this.passwordError = '';
+                    this.closeModal();
+                },
+
+                deleteEmployee(id) {
+                    if (confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+                        this.employees = this.employees.filter(e => e.id !== id);
+                    }
+                },
+
+                // Computed Financial Values
+                get totalRevenues() {
+                    return this.filteredRevenues.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                },
+
+                get totalExpenses() {
+                    return this.filteredExpenses.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                },
+
+                get totalSalaries() {
+                    return this.employees.reduce((sum, emp) => sum + (parseFloat(emp.salary) || 0), 0);
+                },
+
+                get totalAdvances() {
+                    return this.employees.reduce((sum, emp) => sum + (parseFloat(emp.advance) || 0), 0);
+                },
+
+                get netProfit() {
+                    return this.totalRevenues - this.totalExpenses - this.totalSalaries;
+                },
+
+                get filteredRevenues() {
+                    return this.revenues;
+                },
+
+                get filteredExpenses() {
+                    return this.expenses;
+                },
+
+                get searchedRevenues() {
+                    if (!this.revenueSearch) return this.filteredRevenues;
+                    return this.filteredRevenues.filter(r => r.description.toLowerCase().includes(this.revenueSearch.toLowerCase()));
+                },
+
+                get searchedExpenses() {
+                    if (!this.expenseSearch) return this.filteredExpenses;
+                    return this.filteredExpenses.filter(e => e.description.toLowerCase().includes(this.expenseSearch.toLowerCase()));
+                },
+
+                get calculatedPartners() {
+                    const net = this.netProfit;
+                    return this.partners.map(p => {
+                        const availableProfit = net > 0 ? (net * (p.share / 100)) : 0;
+                        const totalDues = availableProfit;
+                        const remainingBalance = totalDues - (p.withdrawals || 0);
+                        return {
+                            ...p,
+                            availableProfit,
+                            totalDues,
+                            remainingBalance
+                        };
+                    });
+                },
+
+                get selectedWithdrawPartner() {
+                    if (!this.withdrawForm.partnerId) return null;
+                    return this.calculatedPartners.find(p => p.id === parseInt(this.withdrawForm.partnerId)) || null;
+                }
+            }
+        }
+    </script>
+
+    <!-- Inline SVG icons (no external icon font needed) -->
+    <script>
+        (function () {
+            var ICONS = {"chart-pie": "<path d=\"M21.21 15.89A10 10 0 1 1 8 2.83\"/><path d=\"M22 12A10 10 0 0 0 12 2v10z\"/>", "chart-line": "<path d=\"M3 3v18h18\"/><path d=\"m19 9-5 5-4-4-3 3\"/>", "users-gear": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>", "handshake": "<path d=\"m11 17 2 2a1 1 0 1 0 3-3\"/><path d=\"m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4\"/><path d=\"m21 3 1 11h-2\"/><path d=\"M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3\"/><path d=\"M3 4h8\"/>", "bars": "<line x1=\"4\" x2=\"20\" y1=\"12\" y2=\"12\"/><line x1=\"4\" x2=\"20\" y1=\"6\" y2=\"6\"/><line x1=\"4\" x2=\"20\" y1=\"18\" y2=\"18\"/>", "wallet": "<path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\"/>", "filter": "<polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\"/>", "bolt": "<polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/>", "chevron-down": "<path d=\"m6 9 6 6 6-6\"/>", "file-invoice-dollar": "<path d=\"M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z\"/><path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\"/><path d=\"M12 17.5v-11\"/>", "file-invoice": "<path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/>", "hand-holding-dollar": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8\"/><path d=\"M12 18V6\"/>", "user-plus": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><line x1=\"19\" x2=\"19\" y1=\"8\" y2=\"14\"/><line x1=\"22\" x2=\"16\" y1=\"11\" y2=\"11\"/>", "money-bill-transfer": "<path d=\"M8 3 4 7l4 4\"/><path d=\"M4 7h16\"/><path d=\"m16 21 4-4-4-4\"/><path d=\"M20 17H4\"/>", "arrow-trend-up": "<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/>", "check-circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>", "coins": "<circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M18.09 10.37A6 6 0 1 1 10.34 18\"/><path d=\"M7 6h1v4\"/><path d=\"m16.71 13.88.7.71-2.82 2.82\"/>", "arrow-right": "<path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/>", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/>", "trash-can": "<path d=\"M3 6h18\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/>", "pen-to-square": "<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\"/>", "xmark": "<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>"};
+            var NS = 'http://www.w3.org/2000/svg';
+            function swap(el) {
+                var name = null, rest = [];
+                el.classList.forEach(function (c) {
+                    if (c === 'fa-solid' || c === 'fa-regular' || c === 'fa-brands') return;
+                    if (!name && c.indexOf('fa-') === 0 && ICONS[c.slice(3)]) name = c.slice(3); else rest.push(c);
+                });
+                if (!name) return;
+                var svg = document.createElementNS(NS, 'svg');
+                svg.setAttribute('viewBox', '0 0 24 24');
+                svg.setAttribute('width', '1em');
+                svg.setAttribute('height', '1em');
+                svg.setAttribute('fill', 'none');
+                svg.setAttribute('stroke', 'currentColor');
+                svg.setAttribute('stroke-width', '2');
+                svg.setAttribute('stroke-linecap', 'round');
+                svg.setAttribute('stroke-linejoin', 'round');
+                svg.setAttribute('aria-hidden', 'true');
+                svg.setAttribute('class', rest.join(' '));
+                svg.style.cssText = 'display:inline-block;vertical-align:-0.125em;flex-shrink:0;';
+                svg.innerHTML = ICONS[name];
+                if (el.parentNode) el.parentNode.replaceChild(svg, el);
+            }
+            function scan(root) {
+                if (root.nodeType !== 1) return;
+                if (root.tagName === 'I') swap(root);
+                else root.querySelectorAll('i[class*="fa-"]').forEach(swap);
+            }
+            scan(document.body);
+            new MutationObserver(function (muts) {
+                muts.forEach(function (m) { m.addedNodes.forEach(scan); });
+            }).observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
+</body>
+</html>
